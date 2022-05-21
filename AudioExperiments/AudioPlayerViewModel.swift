@@ -44,6 +44,8 @@ class PlayerViewModel: NSObject, ObservableObject {
     private let player = AVAudioPlayerNode()
     private let timeEffect = AVAudioUnitTimePitch()
     
+    private var buffer: AVAudioPCMBuffer!
+    
     private var displayLink: CADisplayLink?
     
     private var needsFileScheduled = true
@@ -72,7 +74,17 @@ class PlayerViewModel: NSObject, ObservableObject {
     override init() {
         super.init()
         
-        setupAudio()
+//        do {
+//            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: AVAudioSession.CategoryOptions.mixWithOthers)
+//            NSLog("Playback OK")
+//            try AVAudioSession.sharedInstance().setActive(true)
+//            NSLog("Session is Active")
+//        } catch {
+//            NSLog("ERROR: CANNOT PLAY MUSIC IN BACKGROUND. Message from code: \"\(error)\"")
+//        }
+        
+        //setupAudio()
+        setupAudioWithBuffer()
         setupDisplayLink()
     }
     
@@ -81,15 +93,18 @@ class PlayerViewModel: NSObject, ObservableObject {
         
         if player.isPlaying {
             displayLink?.isPaused = true
-            disconnectVolumeTap()
+            //disconnectVolumeTap()
+            endRecording()
             
             player.pause()
         } else {
             displayLink?.isPaused = false
-            connectVolumeTap()
+            //connectVolumeTap()
+            startRecording()
             
             if needsFileScheduled {
-                scheduleAudioFile()
+                //scheduleAudioFile()
+                scheduleAudioBuffer()
             }
             player.play()
         }
@@ -116,10 +131,7 @@ class PlayerViewModel: NSObject, ObservableObject {
         
         do {
             let file = try AVAudioFile(forReading: fileURL)
-            guard var buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length)) else {
-                print("Failed to create an AudioPCMBuffer.")
-                return
-            }
+            self.buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
             try file.read(into: buffer)
             let format = file.processingFormat
             
@@ -128,60 +140,47 @@ class PlayerViewModel: NSObject, ObservableObject {
             audioLengthSeconds = Double(audioLengthSamples) / audioSampleRate
             
             audioFile = file
-            
-            configureEngine(with: format)
-        } catch {
-            print("Error reading the audio file: \(error.localizedDescription)")
-        }
-    }
-    
-    private func setupAudio() {
-        guard let fileURL = Bundle.main.url(forResource: "voice-sample", withExtension: "m4a") else {
-            return
-        }
         
-        do {
-            let file = try AVAudioFile(forReading: fileURL)
-            let format = file.processingFormat
-            
-            audioLengthSamples = file.length
-            audioSampleRate = format.sampleRate
-            audioLengthSeconds = Double(audioLengthSamples) / audioSampleRate
-            
-            audioFile = file
-            
-            configureEngine(with: format)
+            configureEngineWithBuffer(with: self.buffer)
         } catch {
             print("Error reading the audio file: \(error.localizedDescription)")
         }
     }
     
-    private func configureEngine(with format: AVAudioFormat) {
+    private func configureEngineWithBuffer(with buffer: AVAudioPCMBuffer) {
         engine.attach(player)
         engine.attach(timeEffect)
         
         engine.connect(
             player,
             to: timeEffect,
-            format: format)
+            format: buffer.format)
         engine.connect(
             timeEffect,
             to: engine.mainMixerNode,
-            format: format)
+            format: buffer.format)
+        
+//        let inputNode = engine.inputNode
+//        let bus = 0
+//        inputNode.installTap(onBus: bus, bufferSize: 2048, format: inputNode.inputFormat(forBus: bus)) {
+//            (buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
+//            //println("sfdljk")
+//            
+//        }
         
         engine.prepare()
         
         do {
             try engine.start()
             
-            scheduleAudioFile()
+            scheduleAudioBuffer()
             isPlayerReady = true
         } catch {
             print("Error starting the player: \(error.localizedDescription)")
         }
     }
     
-    private func scheduleAudioFile() {
+    private func scheduleAudioBuffer() {
         guard
             let file = audioFile,
             needsFileScheduled
@@ -192,10 +191,118 @@ class PlayerViewModel: NSObject, ObservableObject {
         needsFileScheduled = false
         seekFrame = 0
         
-        player.scheduleFile(file, at: nil) {
+        player.scheduleBuffer(self.buffer) {
+            print("buffer played")
             self.needsFileScheduled = true
         }
+        
+//        player.scheduleFile(file, at: nil) {
+//            self.needsFileScheduled = true
+//        }
     }
+    
+    func startRecording() {
+
+        let mixer = engine.mainMixerNode
+        let format = mixer.outputFormat(forBus: 0)
+
+        mixer.installTap(onBus: 0, bufferSize: 1024, format: format, block:
+            { (buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
+
+//            let arraySize = Int(buffer.frameLength)
+//            var samples = Array(UnsafeBufferPointer(start: buffer.floatChannelData![0], count:arraySize))
+            
+            
+//            let numChans = Int(buffer.format.channelCount)
+//            let frameLength = buffer.frameLength
+//            if let chans = buffer.floatChannelData?.pointee {
+//                for a in 0..<numChans {
+//                    let samples = chans[a]// samples is type Float.  should be pointer to Floats.
+//                    for b in 0..<flength {
+//                        print("sample: \(b)") // should be samples[b] but that gives error as "samples" is Float
+//                    }
+//                }
+//            }
+            
+            guard let channelData = buffer.floatChannelData else {
+                return
+            }
+            let channelDataValue = channelData.pointee
+            for i in stride(
+                from: 0,
+                to: Int(buffer.frameLength),
+                by: buffer.stride) {
+                channelData[i]
+            }
+        })
+    }
+    
+    func endRecording() {
+        engine.mainMixerNode.removeTap(onBus: 0)
+        
+    }
+    
+//    private func setupAudio() {
+//        guard let fileURL = Bundle.main.url(forResource: "voice-sample", withExtension: "m4a") else {
+//            return
+//        }
+//
+//        do {
+//            let file = try AVAudioFile(forReading: fileURL)
+//            let format = file.processingFormat
+//
+//            audioLengthSamples = file.length
+//            audioSampleRate = format.sampleRate
+//            audioLengthSeconds = Double(audioLengthSamples) / audioSampleRate
+//
+//            audioFile = file
+//
+//            configureEngine(with: format)
+//        } catch {
+//            print("Error reading the audio file: \(error.localizedDescription)")
+//        }
+//    }
+//
+//    private func configureEngine(with format: AVAudioFormat) {
+//        engine.attach(player)
+//        engine.attach(timeEffect)
+//
+//        engine.connect(
+//            player,
+//            to: timeEffect,
+//            format: format)
+//        engine.connect(
+//            timeEffect,
+//            to: engine.mainMixerNode,
+//            format: format)
+//
+//        engine.prepare()
+//
+//        do {
+//            try engine.start()
+//
+//            scheduleAudioFile()
+//            isPlayerReady = true
+//        } catch {
+//            print("Error starting the player: \(error.localizedDescription)")
+//        }
+//    }
+//
+//    private func scheduleAudioFile() {
+//        guard
+//            let file = audioFile,
+//            needsFileScheduled
+//        else {
+//            return
+//        }
+//
+//        needsFileScheduled = false
+//        seekFrame = 0
+//
+//        player.scheduleFile(file, at: nil) {
+//            self.needsFileScheduled = true
+//        }
+//    }
     
     // MARK: Audio adjustments
     
@@ -263,6 +370,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             guard let channelData = buffer.floatChannelData else {
                 return
             }
+
             
             let channelDataValue = channelData.pointee
             let channelDataValueArray = stride(
@@ -314,7 +422,8 @@ class PlayerViewModel: NSObject, ObservableObject {
             isPlaying = false
             displayLink?.isPaused = true
             
-            disconnectVolumeTap()
+            //disconnectVolumeTap()
+            endRecording()
         }
         
         playerProgress = Double(currentPosition) / Double(audioLengthSamples)
