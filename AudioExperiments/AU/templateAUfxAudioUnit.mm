@@ -14,7 +14,7 @@
 
 bool nowScrubbing = false;
 AudioBufferList* pcmBuffer = nil;
-int currentFrame = 0;
+int nowFrameScrubbing = 0;
 
 //==============================================================================
 @interface templateAUfxAudioUnit ()

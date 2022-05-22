@@ -15,5 +15,5 @@
 //==============================================================================
 
 extern bool nowScrubbing;
-extern int currentFrame;
+extern int nowFrameScrubbing;
 extern AudioBufferList* pcmBuffer;

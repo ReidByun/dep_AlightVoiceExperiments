@@ -26,6 +26,11 @@ class PlayerViewModel: NSObject, ObservableObject {
     var playerProgress: Double = 0 {
         willSet {
             objectWillChange.send()
+            
+            if isScrubbing {
+                nowFrameScrubbing = Int32(getCurrentFrame(from: playerProgress));
+                //print("scrubbing progress \(playerProgress) ---> \(nowFrameScrubbing)")
+            }
         }
     }
     var playerTime: PlayerTime = .zero {
@@ -170,6 +175,7 @@ class PlayerViewModel: NSObject, ObservableObject {
     private func setupAudioWithBuffer() {
         guard let fileURL = Bundle.main.url(forResource: "voice-sample", withExtension: "m4a") else {
 //        guard let fileURL = Bundle.main.url(forResource: "drums", withExtension: "mp3") else {
+//        guard let fileURL = Bundle.main.url(forResource: "IU", withExtension: "mp3") else {
             return
         }
         
@@ -509,7 +515,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             remainingTime: audioLengthSeconds - time)
     }
     
-    func currentFrame(from progress: Double) -> AVAudioFramePosition {
+    func getCurrentFrame(from progress: Double) -> AVAudioFramePosition {
         return AVAudioFramePosition((progress / 100.0) * Double(audioLengthSamples))
     }
     

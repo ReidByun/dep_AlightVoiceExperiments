@@ -18,13 +18,18 @@
 
 extern bool    nowScrubbing;
 extern AudioBufferList* pcmBuffer;
-extern int currentFrame;
+extern int nowFrameScrubbing;
 
 class DSPKernel
 {
 public:
     bool myScrubbing = false;
-    int myFrame = 0;
+    
+    int scrubbingStartFrame = 0;
+    bool isEnoughFrameOut = false;
+    int miniumFrameOutCount = 4410;
+    int accumFrameOut = 0;
+    
     int testFrameOffset = 0;
     //==========================================================================
     // MARK: Member Functions
@@ -35,6 +40,7 @@ public:
     {
         channels = channelCount;
         sampleRate = float(inSampleRate);
+        miniumFrameOutCount = sampleRate / 1000;
     }
     //==============================================================================
     /**
@@ -72,20 +78,51 @@ public:
             }
         }
         else {
-            for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
-            {
-                int frameOffset = int(frameIndex + bufferOffset);
+            if (scrubbingStartFrame != nowFrameScrubbing || !isEnoughFrameOut) {
+            //if (scrubbingStartFrame != nowFrameScrubbing) {
+                if (accumFrameOut == 0) {
+                    isEnoughFrameOut = true;
+                    scrubbingStartFrame = nowFrameScrubbing;
+                }
+                
+                int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
+                
+                
+                for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
+                {
+                    int frameOffset = int(frameIndex + bufferOffset);
+                    int inputFrameOffset = scrubbingStartFrame + accumFrameOut + frameIndex;
+                    for (int channel = 0; channel < channelCount; ++channel)
+                    {
+                        if (inputFrameOffset < maximumFrameCount) {
+                            float* indata = (float *)(pcmBuffer->mBuffers[channel].mData);
+                            float* in  = &indata[inputFrameOffset];
+                            float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
+                            // MARK: Sample Processing
+                            *out = *in;
+                        }
+                        else {
+                            float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
+                            // MARK: Sample Processing
+                            *out = 0;
+                        }
+                    }
+                    //testFrameOffset++;
+                    //testFrameOffset %= (pcmBuffer->mBuffers[0].mDataByteSize/4);
+                }
+                
+                accumFrameOut += frameCount;
+                if (accumFrameOut >= miniumFrameOutCount) {
+                    isEnoughFrameOut = true;
+                    //scrubbingStartFrame -= accumFrameOut;
+                    accumFrameOut = 0;
+                }
+            }
+            else {
                 for (int channel = 0; channel < channelCount; ++channel)
                 {
-                    float* indata = (float *)(pcmBuffer->mBuffers[channel].mData);
-                    float* in  = &indata[testFrameOffset];
-                    float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
-                    // MARK: Sample Processing
-                    *out = *in;
-                    //*out = 0;
+                    memset(outBufferListPtr->mBuffers[channel].mData, 0, outBufferListPtr->mBuffers[channel].mDataByteSize);
                 }
-                testFrameOffset++;
-                testFrameOffset %= (pcmBuffer->mBuffers[0].mDataByteSize/4);
             }
             
         }

@@ -16,6 +16,7 @@
 		30432868283880E400ECF55D /* MyV3AudioUnit5.m in Sources */ = {isa = PBXBuildFile; fileRef = 30432865283880E400ECF55D /* MyV3AudioUnit5.m */; };
 		3043286D283A18D400ECF55D /* templateAUfxAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3043286B283A18D300ECF55D /* templateAUfxAudioUnit.mm */; };
 		30432874283A401B00ECF55D /* drums.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30432873283A401B00ECF55D /* drums.mp3 */; };
+		30432876283A9C5B00ECF55D /* IU.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30432875283A9C5B00ECF55D /* IU.mp3 */; };
 		30D4BF752832577900A1B71A /* AudioExperimentsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D4BF742832577900A1B71A /* AudioExperimentsApp.swift */; };
 		30D4BF772832577900A1B71A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D4BF762832577900A1B71A /* ContentView.swift */; };
 		30D4BF7C2832577C00A1B71A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30D4BF7B2832577C00A1B71A /* Preview Assets.xcassets */; };
@@ -56,6 +57,7 @@
 		3043286B283A18D300ECF55D /* templateAUfxAudioUnit.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = templateAUfxAudioUnit.mm; sourceTree = "<group>"; };
 		3043286C283A18D300ECF55D /* templateAUfxAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = templateAUfxAudioUnit.h; sourceTree = "<group>"; };
 		30432873283A401B00ECF55D /* drums.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = drums.mp3; sourceTree = "<group>"; };
+		30432875283A9C5B00ECF55D /* IU.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = IU.mp3; sourceTree = "<group>"; };
 		30D4BF712832577900A1B71A /* AudioExperiments.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudioExperiments.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D4BF742832577900A1B71A /* AudioExperimentsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioExperimentsApp.swift; sourceTree = "<group>"; };
 		30D4BF762832577900A1B71A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				302FDF1128375E8F00606137 /* AudioPlayerViewModel.swift */,
 				3043285F28376D3D00ECF55D /* Assets.xcassets */,
 				30432873283A401B00ECF55D /* drums.mp3 */,
+				30432875283A9C5B00ECF55D /* IU.mp3 */,
 				3043286128376DCC00ECF55D /* voice-sample.m4a */,
 				30D4BF7A2832577C00A1B71A /* Preview Content */,
 			);
@@ -274,6 +277,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30432876283A9C5B00ECF55D /* IU.mp3 in Resources */,
 				3043286028376D3D00ECF55D /* Assets.xcassets in Resources */,
 				3043286228376E2000ECF55D /* voice-sample.m4a in Resources */,
 				30432874283A401B00ECF55D /* drums.mp3 in Resources */,
