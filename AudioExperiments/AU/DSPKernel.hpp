@@ -15,9 +15,17 @@
  DSPKernel Performs our filter signal processing.
  As a non-ObjC class, this is safe to use from render thread.
  */
+
+extern bool    nowScrubbing;
+extern AudioBufferList* pcmBuffer;
+extern int currentFrame;
+
 class DSPKernel
 {
 public:
+    bool myScrubbing = false;
+    int myFrame = 0;
+    int testFrameOffset = 0;
     //==========================================================================
     // MARK: Member Functions
     DSPKernel() {}
@@ -43,18 +51,43 @@ public:
      */
     void process(AUAudioFrameCount frameCount, AUAudioFrameCount bufferOffset)
     {
+        if (myScrubbing != nowScrubbing) {
+            myScrubbing = nowScrubbing;
+            NSLog(myScrubbing ? @"Yes" : @"No");
+        }
         int channelCount = channels;
-        for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
-        {
-            int frameOffset = int(frameIndex + bufferOffset);
-            for (int channel = 0; channel < channelCount; ++channel)
+        
+        if (!myScrubbing) {
+            for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
             {
-                float* in  = (float*)inBufferListPtr->mBuffers[channel].mData  + frameOffset;
-                float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
-                // MARK: Sample Processing
-                *out = *in;
-                //*out = 0;
+                int frameOffset = int(frameIndex + bufferOffset);
+                for (int channel = 0; channel < channelCount; ++channel)
+                {
+                    float* in  = (float*)inBufferListPtr->mBuffers[channel].mData  + frameOffset;
+                    float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
+                    // MARK: Sample Processing
+                    *out = *in;
+                    //*out = 0;
+                }
             }
+        }
+        else {
+            for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
+            {
+                int frameOffset = int(frameIndex + bufferOffset);
+                for (int channel = 0; channel < channelCount; ++channel)
+                {
+                    float* indata = (float *)(pcmBuffer->mBuffers[channel].mData);
+                    float* in  = &indata[testFrameOffset];
+                    float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
+                    // MARK: Sample Processing
+                    *out = *in;
+                    //*out = 0;
+                }
+                testFrameOffset++;
+                testFrameOffset %= (pcmBuffer->mBuffers[0].mDataByteSize/4);
+            }
+            
         }
     }
     //==============================================================================

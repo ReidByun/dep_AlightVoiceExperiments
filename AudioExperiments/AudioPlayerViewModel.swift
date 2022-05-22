@@ -43,20 +43,22 @@ class PlayerViewModel: NSObject, ObservableObject {
     
     @Published var isScrubbing = false {
         didSet {
+            nowScrubbing = isScrubbing
             if isScrubbing {
                 print("START scrubbing")
                 if player.isPlaying {
                     scrubbingInPlaying = true
-                    //player.stop()
+                    //player.pause()
                 }
             }
             else {
                 print("END scrubbing")
                 if scrubbingInPlaying {
+                    seek(to: currentTime(from: playerProgress))
                     scrubbingInPlaying = false
                     //var progress = Double(currentPosition) / Double(audioLengthSamples) * 100.0
                     print(playerProgress)
-                    seek(to: currentTime(from: playerProgress))
+                    
                 }
             }
         }
@@ -184,6 +186,8 @@ class PlayerViewModel: NSObject, ObservableObject {
             audioFile = file
             
             sampleRateHz = buffer.format.sampleRate
+            
+            templateAUfxAudioUnit.getBufferList(from: buffer)
         
             configureEngineConnection(with: self.buffer)
             //configureEngineWithBuffer(with: self.buffer)
@@ -287,7 +291,6 @@ class PlayerViewModel: NSObject, ObservableObject {
                                 options: .init(rawValue: 0)) { (audiounit, error) in
             
             self.myAUNode = audiounit   // save AVAudioUnit
-            
             self.configureEngineWithBuffer(with: buffer)
         }
     }

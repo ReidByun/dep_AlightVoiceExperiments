@@ -7,8 +7,13 @@
 //
 //==============================================================================
 #import <AudioToolbox/AudioToolbox.h>
+#import <AVFoundation/AVFoundation.h>
 //==============================================================================
 @interface templateAUfxAudioUnit : AUAudioUnit
-
++ (AudioBufferList *)getBufferListFromBuffer:(AVAudioPCMBuffer *)buffer;
 @end
 //==============================================================================
+
+extern bool nowScrubbing;
+extern int currentFrame;
+extern AudioBufferList* pcmBuffer;

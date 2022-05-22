@@ -11,6 +11,12 @@
 #import "DSPKernel.hpp"
 #import "BufferedAudioBus.hpp"
 //==============================================================================
+
+bool nowScrubbing = false;
+AudioBufferList* pcmBuffer = nil;
+int currentFrame = 0;
+
+//==============================================================================
 @interface templateAUfxAudioUnit ()
 @property AUAudioUnitBus *outputBus;
 @property AUAudioUnitBusArray *inputBusArray;
@@ -148,6 +154,54 @@
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         return noErr;
     };
+}
+
+//==============================================================================
++ (AudioBufferList *)getBufferListFromBuffer:(AVAudioPCMBuffer *)buffer {
+    NSData* dataL = [[NSData alloc] initWithBytes:buffer.floatChannelData[0] length:buffer.frameLength * 4];
+    NSData* dataR = [[NSData alloc] initWithBytes:buffer.floatChannelData[1] length:buffer.frameLength * 4];
+    if (dataL.length > 0)
+    {
+        NSUInteger lenL = [dataL length];
+        NSUInteger lenR = [dataR length];
+        //Byte* byteDataL = (Byte*) malloc (lenL);
+        //memcpy (byteDataL, [dataL bytes], lenL);
+        if (lenL)
+        {
+            if (pcmBuffer != nil) {
+                delete[] (Byte*)pcmBuffer->mBuffers[0].mData;
+                delete[] (Byte*)pcmBuffer->mBuffers[1].mData;
+                delete[] pcmBuffer;
+            }
+            
+            pcmBuffer =(AudioBufferList*)malloc(sizeof(AudioBufferList) * 2);
+            pcmBuffer->mNumberBuffers = 2;
+            pcmBuffer->mBuffers[0].mDataByteSize =(UInt32) lenL;
+            pcmBuffer->mBuffers[0].mNumberChannels = 1;
+            
+            float * dataLfloat =(float*) dataL.bytes;
+            pcmBuffer->mBuffers[0].mData = (Byte*) malloc (lenL);
+            float* left = (float *)(pcmBuffer->mBuffers[0].mData);
+            for (int i = 0; i < buffer.frameLength; i++) {
+                //left[i] = buffer.floatChannelData[0][i];
+                left[i] = dataLfloat[i];
+            }
+            
+            
+            pcmBuffer->mBuffers[1].mDataByteSize =(UInt32) lenR;
+            pcmBuffer->mBuffers[1].mNumberChannels = 1;
+            float * dataRfloat =(float*) dataR.bytes;
+            pcmBuffer->mBuffers[1].mData = (Byte*) malloc (lenR);
+            float* right = (float *)(pcmBuffer->mBuffers[1].mData);
+            for (int i = 0; i < buffer.frameLength; i++) {
+                //right[i] = buffer.floatChannelData[0][i];
+                //right[i] = avAudioPCMBuffer[2*i];
+                right[i] = dataRfloat[i];
+            }
+            return pcmBuffer;
+        }
+    }
+    return nil;
 }
 //==============================================================================
 @end
