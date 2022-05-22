@@ -39,6 +39,29 @@ class PlayerViewModel: NSObject, ObservableObject {
         }
     }
     
+    private var scrubbingInPlaying = false
+    
+    @Published var isScrubbing = false {
+        didSet {
+            if isScrubbing {
+                print("START scrubbing")
+                if player.isPlaying {
+                    scrubbingInPlaying = true
+                    //player.stop()
+                }
+            }
+            else {
+                print("END scrubbing")
+                if scrubbingInPlaying {
+                    scrubbingInPlaying = false
+                    //var progress = Double(currentPosition) / Double(audioLengthSamples) * 100.0
+                    print(playerProgress)
+                    seek(to: currentTime(from: playerProgress))
+                }
+            }
+        }
+    }
+    
     
     private let engine: AVAudioEngine!
     private let player = AVAudioPlayerNode()
@@ -137,7 +160,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             timeToSeek = -10
         }
         
-        seek(to: timeToSeek)
+        seek(fromTimeOffset: timeToSeek)
     }
     
     // MARK: - Private
@@ -312,16 +335,54 @@ class PlayerViewModel: NSObject, ObservableObject {
     
     // MARK: Audio adjustments
     
+    private func calcSeekFramePosition(fromTimeOffset timeOffset: Double,
+                                       currentPos: AVAudioFramePosition,
+                                       audioSamples: AVAudioFramePosition,
+                                       sampleRate: Double) -> AVAudioFramePosition {
+        let offset = AVAudioFramePosition(timeOffset * sampleRate)
+        var posToseek = currentPos + offset
+        posToseek = max(posToseek, 0)
+        posToseek = min(posToseek, audioSamples)
+        
+        return posToseek
+    }
+    
+    private func calcSeekFramePosition(fromAbsTime time: Double,
+                                       currentPos: AVAudioFramePosition,
+                                       audioSamples: AVAudioFramePosition,
+                                       sampleRate: Double) -> AVAudioFramePosition {
+        let timeToSeek = AVAudioFramePosition(time * sampleRate)
+        var posToseek = timeToSeek
+        posToseek = max(posToseek, 0)
+        posToseek = min(posToseek, audioSamples)
+        
+        return posToseek
+    }
+    
+    private func seek(fromTimeOffset time: Double) {
+        seekFrame = calcSeekFramePosition(fromTimeOffset: time,
+                                          currentPos: currentPosition,
+                                          audioSamples: audioLengthSamples,
+                                          sampleRate: audioSampleRate)
+        currentPosition = seekFrame
+        
+        seekToCurrent()
+    }
+    
     private func seek(to time: Double) {
+        seekFrame = calcSeekFramePosition(fromAbsTime: time,
+                                          currentPos: currentPosition,
+                                          audioSamples: audioLengthSamples,
+                                          sampleRate: audioSampleRate)
+        currentPosition = seekFrame
+        seekToCurrent()
+    }
+    
+    private func seekToCurrent() {
         guard let audioFile = audioFile else {
             return
         }
         
-        let offset = AVAudioFramePosition(time * audioSampleRate)
-        seekFrame = currentPosition + offset
-        seekFrame = max(seekFrame, 0)
-        seekFrame = min(seekFrame, audioLengthSamples)
-        currentPosition = seekFrame
         
         let wasPlaying = player.isPlaying
         player.stop()
@@ -342,8 +403,6 @@ class PlayerViewModel: NSObject, ObservableObject {
                 //self.player.play()
                 //self.scheduleAudioBuffer()
             }
-            
-            
             
             if wasPlaying {
                 player.play()
@@ -437,7 +496,9 @@ class PlayerViewModel: NSObject, ObservableObject {
             //endRecording()
         }
         
-        playerProgress = Double(currentPosition) / Double(audioLengthSamples) * 100.0
+        if !isScrubbing {
+            playerProgress = Double(currentPosition) / Double(audioLengthSamples) * 100.0
+        }
         
         let time = Double(currentPosition) / audioSampleRate
         playerTime = PlayerTime(
@@ -445,7 +506,13 @@ class PlayerViewModel: NSObject, ObservableObject {
             remainingTime: audioLengthSeconds - time)
     }
     
+    func currentFrame(from progress: Double) -> AVAudioFramePosition {
+        return AVAudioFramePosition((progress / 100.0) * Double(audioLengthSamples))
+    }
     
+    func currentTime(from progress: Double) -> Double {
+        return (progress / 100.0) * Double(audioLengthSeconds)
+    }
 }
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromAVAudioSessionCategory(_ input: AVAudioSession.Category) -> String {

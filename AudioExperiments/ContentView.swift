@@ -27,7 +27,7 @@ struct ContentView: View {
     
     private var PlayerControlView: some View {
         VStack {
-            SliderBarView(value: $viewModel.playerProgress)
+            SliderBarView(value: $viewModel.playerProgress, isEditing: $viewModel.isScrubbing)
                 .padding(.bottom, 8)
                 .frame(height: 40)
 //            ProgressBarView(value: $viewModel.playerProgress)
@@ -106,7 +106,8 @@ struct ContentView: View {
 
 fileprivate struct SliderBarView: View {
     @Binding var value: Double
-    @State private var isEditing = false
+    //@State private var isEditing = false
+    @Binding var isEditing: Bool
 
 
     var body: some View {
@@ -116,6 +117,7 @@ fileprivate struct SliderBarView: View {
                 in: 0...100,
                 onEditingChanged: { editing in
                     isEditing = editing
+                    
                 }
             )
             Text("\(value)")
@@ -123,6 +125,8 @@ fileprivate struct SliderBarView: View {
         }
     }
 }
+
+
 
 fileprivate struct ProgressBarView: View {
     @Binding var value: Double
