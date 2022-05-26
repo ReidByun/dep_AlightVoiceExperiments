@@ -19,18 +19,21 @@
 extern bool    nowScrubbing;
 extern AudioBufferList* pcmBuffer;
 extern int nowFrameScrubbing;
+extern int currentPlayingFrame;
 
 class DSPKernel
 {
 public:
     bool myScrubbing = false;
     
-    int scrubbingStartFrame = 0;
+    int targetFrame = 0;
+    int lastScrubbingStartFrame = 0;
     bool isEnoughFrameOut = false;
     int miniumFrameOutCount = 4410;
     int accumFrameOut = 0;
     
     int testFrameOffset = 0;
+    
     //==========================================================================
     // MARK: Member Functions
     DSPKernel() {}
@@ -59,7 +62,7 @@ public:
     {
         if (myScrubbing != nowScrubbing) {
             myScrubbing = nowScrubbing;
-            NSLog(myScrubbing ? @"Yes" : @"No");
+            //NSLog(myScrubbing ? @"Yes" : @"No");
         }
         int channelCount = channels;
         
@@ -76,22 +79,39 @@ public:
                     //*out = 0;
                 }
             }
+            
+            lastScrubbingStartFrame = currentPlayingFrame;
         }
         else {
-            if (scrubbingStartFrame != nowFrameScrubbing || !isEnoughFrameOut) {
+            //double ratio = abs(double((targetFrame + frameCount) - lastScrubbingStartFrame)) / double(frameCount);
+            targetFrame = nowFrameScrubbing;
+            double diff = abs(double(targetFrame - lastScrubbingStartFrame));
+//            double diff = abs(double(lastScrubbingStartFrame - targetFrame));
+            double ratio = diff / double(frameCount);
+            double stride = ratio;
+            
+//            if (int(stride) == 941) {
+//                printf("as;ldfjas;lkdjf;la");
+//            }
+            //stride = 18;
+            
+            //printf("target = %d, now = %d, (%d), stride = %.2f, ratio = %.2f\n", targetFrame, nowFrameScrubbing, nowFrameScrubbing - targetFrame, stride, ratio);
+            
+            
+            if (targetFrame != lastScrubbingStartFrame || !isEnoughFrameOut) {
             //if (scrubbingStartFrame != nowFrameScrubbing) {
                 if (accumFrameOut == 0) {
                     isEnoughFrameOut = true;
-                    scrubbingStartFrame = nowFrameScrubbing;
+                    //targetFrame = nowFrameScrubbing;
                 }
+                printf("out data(%.0f)(%d) ", stride, targetFrame);
                 
                 int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
-                
                 
                 for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
                 {
                     int frameOffset = int(frameIndex + bufferOffset);
-                    int inputFrameOffset = scrubbingStartFrame + accumFrameOut + frameIndex;
+                    int inputFrameOffset = int(double(targetFrame + accumFrameOut + (frameIndex * stride)));
                     for (int channel = 0; channel < channelCount; ++channel)
                     {
                         if (inputFrameOffset < maximumFrameCount) {
@@ -100,30 +120,36 @@ public:
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
                             // MARK: Sample Processing
                             *out = *in;
+                            lastScrubbingStartFrame = inputFrameOffset;
+                            
                         }
                         else {
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
                             // MARK: Sample Processing
                             *out = 0;
+                            //lastScrubbingStartFrame = maximumFrameCount;
                         }
                     }
                     //testFrameOffset++;
                     //testFrameOffset %= (pcmBuffer->mBuffers[0].mDataByteSize/4);
                 }
                 
-                accumFrameOut += frameCount;
+                //accumFrameOut += frameCount;
                 if (accumFrameOut >= miniumFrameOutCount) {
                     isEnoughFrameOut = true;
-                    //scrubbingStartFrame -= accumFrameOut;
                     accumFrameOut = 0;
                 }
             }
             else {
+                //printf("zero data(%.0f) ", stride);
                 for (int channel = 0; channel < channelCount; ++channel)
                 {
                     memset(outBufferListPtr->mBuffers[channel].mData, 0, outBufferListPtr->mBuffers[channel].mDataByteSize);
                 }
             }
+            
+            printf("target(%d), last(%d) now(%d), diff(%d)\n", targetFrame, lastScrubbingStartFrame, nowFrameScrubbing, diff);
+            lastScrubbingStartFrame = targetFrame;
             
         }
     }

@@ -31,6 +31,9 @@ class PlayerViewModel: NSObject, ObservableObject {
                 nowFrameScrubbing = Int32(getCurrentFrame(from: playerProgress));
                 //print("scrubbing progress \(playerProgress) ---> \(nowFrameScrubbing)")
             }
+            else {
+                currentPlayingFrame = Int32(getCurrentFrame(from: playerProgress));
+            }
         }
     }
     var playerTime: PlayerTime = .zero {
@@ -173,9 +176,10 @@ class PlayerViewModel: NSObject, ObservableObject {
     // MARK: - Private
     
     private func setupAudioWithBuffer() {
-        guard let fileURL = Bundle.main.url(forResource: "voice-sample", withExtension: "m4a") else {
+//        guard let fileURL = Bundle.main.url(forResource: "voice-sample", withExtension: "m4a") else {
 //        guard let fileURL = Bundle.main.url(forResource: "drums", withExtension: "mp3") else {
 //        guard let fileURL = Bundle.main.url(forResource: "IU", withExtension: "mp3") else {
+        guard let fileURL = Bundle.main.url(forResource: "IU-short", withExtension: "mp3") else {
             return
         }
         
@@ -191,7 +195,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             
             audioFile = file
             
-            sampleRateHz = buffer.format.sampleRate
+            //sampleRateHz = buffer.format.sampleRate
             
             templateAUfxAudioUnit.getBufferList(from: buffer)
         

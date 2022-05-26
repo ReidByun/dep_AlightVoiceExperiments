@@ -13,7 +13,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Image.artwork
-                .resizable()
+                .resizable() 
                 .aspectRatio(
                     nil,
                     contentMode: .fit)

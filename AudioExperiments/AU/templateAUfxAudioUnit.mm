@@ -1,10 +1,3 @@
-//
-//  templateAUfxAudioUnit.m
-//  templateAUfx
-//
-//  Created by mhamilt7 on 10/07/2018.
-//  Copyright © 2018 mhamilt7. All rights reserved.
-//
 //==============================================================================
 #import "templateAUfxAudioUnit.h"
 #import <AVFoundation/AVFoundation.h>
@@ -15,6 +8,7 @@
 bool nowScrubbing = false;
 AudioBufferList* pcmBuffer = nil;
 int nowFrameScrubbing = 0;
+int currentPlayingFrame = 0;
 
 //==============================================================================
 @interface templateAUfxAudioUnit ()
