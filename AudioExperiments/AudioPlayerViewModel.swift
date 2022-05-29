@@ -115,8 +115,8 @@ class PlayerViewModel: NSObject, ObservableObject {
             NSLog("Playback OK")
             //try AVAudioSession.sharedInstance().setPreferredSampleRate(48000.0)
             //sampleRateHz  = 48000.0
-            //let duration = 1.00 * (960/48000.0)
-            let duration = 1.00 * (44100/48000.0)
+            let duration = 1.00 * (960/48000.0)
+            //let duration = 1.00 * (44100/48000.0)
             try AVAudioSession.sharedInstance().setPreferredIOBufferDuration(duration)
             try AVAudioSession.sharedInstance().setActive(true)
             NSLog("Session is Active")

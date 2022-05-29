@@ -83,28 +83,20 @@ public:
             lastScrubbingStartFrame = currentPlayingFrame;
         }
         else {
-            //double ratio = abs(double((targetFrame + frameCount) - lastScrubbingStartFrame)) / double(frameCount);
             targetFrame = nowFrameScrubbing;
-            double diff = abs(double(targetFrame - lastScrubbingStartFrame));
-//            double diff = abs(double(lastScrubbingStartFrame - targetFrame));
+            double diff = double(targetFrame - lastScrubbingStartFrame);
             double ratio = diff / double(frameCount);
             double stride = ratio;
-            
-//            if (int(stride) == 941) {
-//                printf("as;ldfjas;lkdjf;la");
-//            }
-            //stride = 18;
-            
-            //printf("target = %d, now = %d, (%d), stride = %.2f, ratio = %.2f\n", targetFrame, nowFrameScrubbing, nowFrameScrubbing - targetFrame, stride, ratio);
             
             int lastTest = 0;
             if (targetFrame != lastScrubbingStartFrame || !isEnoughFrameOut) {
             //if (scrubbingStartFrame != nowFrameScrubbing) {
-                if (accumFrameOut == 0) {
-                    isEnoughFrameOut = true;
-                    //targetFrame = nowFrameScrubbing;
-                }
-                printf("out data(%.1f)diff(%.2f) ", stride, diff);
+//                if (accumFrameOut == 0) {
+//                    isEnoughFrameOut = false;
+//                    //targetFrame = nowFrameScrubbing;
+//                }
+                
+                //printf("out data(%.1f)diff(%.2f) ", stride, diff);
                 
                 int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
                 
@@ -114,7 +106,8 @@ public:
                     int inputFrameOffset = int(double(lastScrubbingStartFrame + accumFrameOut + (frameIndex * stride)));
                     for (int channel = 0; channel < channelCount; ++channel)
                     {
-                        if (inputFrameOffset < targetFrame) {
+                        if (    (diff > 0 && inputFrameOffset <= targetFrame)
+                            ||  (diff < 0 && inputFrameOffset >= targetFrame) ){
                             float* indata = (float *)(pcmBuffer->mBuffers[channel].mData);
                             float* in  = &indata[inputFrameOffset];
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
@@ -127,7 +120,7 @@ public:
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
                             // MARK: Sample Processing
                             *out = 0;
-                            lastTest = maximumFrameCount;
+                            //lastTest = maximumFrameCount;
                             //lastScrubbingStartFrame = maximumFrameCount;
                         }
                     }
@@ -140,7 +133,17 @@ public:
                     isEnoughFrameOut = true;
                     accumFrameOut = 0;
                 }
-                printf("target(%d), last(%d) lastTest(%d), now(%d), diff(%.1f)\n", targetFrame, lastScrubbingStartFrame, lastTest, nowFrameScrubbing, diff);
+//                if (diff != 0) {
+//                    printf("target(%d), last(%d) lastTest(%d), now(%d), diff(%.1f)\n", targetFrame, lastScrubbingStartFrame, lastTest, nowFrameScrubbing, diff);
+//                }
+                
+                if (lastTest != 0 && lastTest != targetFrame) {
+                    printf("target(%d), lastTest(%d) =>> %d \n", targetFrame, lastTest, targetFrame - lastTest);
+                    lastScrubbingStartFrame = lastTest;
+                }
+                else {
+                    lastScrubbingStartFrame = targetFrame;
+                }
             }
             else {
                 //printf("zero data(%.0f) ", stride);
@@ -149,11 +152,12 @@ public:
                     memset(outBufferListPtr->mBuffers[channel].mData, 0, outBufferListPtr->mBuffers[channel].mDataByteSize);
                 }
                 lastScrubbingStartFrame = targetFrame;
+                //lastScrubbingStartFrame = lastTest;
             }
             
 //            printf("target(%d), last(%d) lastTest(%d), now(%d), diff(%d)\n", targetFrame, lastScrubbingStartFrame, lastTest, nowFrameScrubbing, diff);
             
-            lastScrubbingStartFrame = targetFrame;
+            //lastScrubbingStartFrame = targetFrame;
             
         }
     }
