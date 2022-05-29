@@ -106,33 +106,23 @@ class PlayerViewModel: NSObject, ObservableObject {
     // MARK: - Public
     
     override init() {
-//        let sess = AVAudioSession.sharedInstance()
-//
-//
-//        //try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [])
-//        try! sess.setCategory(AVAudioSession.Category(rawValue: convertFromAVAudioSessionCategory(AVAudioSession.Category.playAndRecord)))
-//        do {
-//            try sess.setPreferredSampleRate(48000.0)
-//            sampleRateHz  = 48000.0
-//        } catch { sampleRateHz  = 44100.0 }      // for Simulator and old devices
-//        do {
-//            let duration = 1.00 * (256.0/48000.0)
-//            try sess.setPreferredIOBufferDuration(duration)   // 256 samples
-//        } catch { }
-//        try! sess.setActive(true)
-        
         engine = AVAudioEngine()
         
         super.init()
         
-//        do {
-//            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: AVAudioSession.CategoryOptions.mixWithOthers)
-//            NSLog("Playback OK")
-//            try AVAudioSession.sharedInstance().setActive(true)
-//            NSLog("Session is Active")
-//        } catch {
-//            NSLog("ERROR: CANNOT PLAY MUSIC IN BACKGROUND. Message from code: \"\(error)\"")
-//        }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: AVAudioSession.CategoryOptions.mixWithOthers)
+            NSLog("Playback OK")
+            //try AVAudioSession.sharedInstance().setPreferredSampleRate(48000.0)
+            //sampleRateHz  = 48000.0
+            //let duration = 1.00 * (960/48000.0)
+            let duration = 1.00 * (44100/48000.0)
+            try AVAudioSession.sharedInstance().setPreferredIOBufferDuration(duration)
+            try AVAudioSession.sharedInstance().setActive(true)
+            NSLog("Session is Active")
+        } catch {
+            NSLog("ERROR: CANNOT PLAY MUSIC IN BACKGROUND. Message from code: \"\(error)\"")
+        }
         
         //setupAudio()
         setupAudioWithBuffer()
