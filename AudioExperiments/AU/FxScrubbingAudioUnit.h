@@ -1,8 +1,7 @@
-//==============================================================================
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
 //==============================================================================
-@interface templateAUfxAudioUnit : AUAudioUnit
+@interface FxScrubbingAudioUnit : AUAudioUnit
 + (AudioBufferList *)getBufferListFromBuffer:(AVAudioPCMBuffer *)buffer;
 @end
 //==============================================================================

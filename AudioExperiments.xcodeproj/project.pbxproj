@@ -13,7 +13,7 @@
 		302FDF1628375F2700606137 /* PlaybackValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302FDF1528375F2700606137 /* PlaybackValue.swift */; };
 		3043286028376D3D00ECF55D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3043285F28376D3D00ECF55D /* Assets.xcassets */; };
 		3043286228376E2000ECF55D /* voice-sample.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 3043286128376DCC00ECF55D /* voice-sample.m4a */; };
-		3043286D283A18D400ECF55D /* templateAUfxAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3043286B283A18D300ECF55D /* templateAUfxAudioUnit.mm */; };
+		3043286D283A18D400ECF55D /* FxScrubbingAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3043286B283A18D300ECF55D /* FxScrubbingAudioUnit.mm */; };
 		30432874283A401B00ECF55D /* drums.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30432873283A401B00ECF55D /* drums.mp3 */; };
 		30432876283A9C5B00ECF55D /* IU.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30432875283A9C5B00ECF55D /* IU.mp3 */; };
 		304E85E8283F3241001EC7AB /* IU-short.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 304E85E7283F3241001EC7AB /* IU-short.mp3 */; };
@@ -52,8 +52,8 @@
 		30432864283880E300ECF55D /* AudioExperiments-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AudioExperiments-Bridging-Header.h"; sourceTree = "<group>"; };
 		30432869283A180E00ECF55D /* BufferedAudioBus.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BufferedAudioBus.hpp; sourceTree = "<group>"; };
 		3043286A283A180E00ECF55D /* DSPKernel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DSPKernel.hpp; sourceTree = "<group>"; };
-		3043286B283A18D300ECF55D /* templateAUfxAudioUnit.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = templateAUfxAudioUnit.mm; sourceTree = "<group>"; };
-		3043286C283A18D300ECF55D /* templateAUfxAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = templateAUfxAudioUnit.h; sourceTree = "<group>"; };
+		3043286B283A18D300ECF55D /* FxScrubbingAudioUnit.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FxScrubbingAudioUnit.mm; sourceTree = "<group>"; };
+		3043286C283A18D300ECF55D /* FxScrubbingAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FxScrubbingAudioUnit.h; sourceTree = "<group>"; };
 		30432873283A401B00ECF55D /* drums.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = drums.mp3; sourceTree = "<group>"; };
 		30432875283A9C5B00ECF55D /* IU.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = IU.mp3; sourceTree = "<group>"; };
 		304E85E7283F3241001EC7AB /* IU-short.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IU-short.mp3"; sourceTree = "<group>"; };
@@ -96,8 +96,8 @@
 		30432863283880D400ECF55D /* AU */ = {
 			isa = PBXGroup;
 			children = (
-				3043286C283A18D300ECF55D /* templateAUfxAudioUnit.h */,
-				3043286B283A18D300ECF55D /* templateAUfxAudioUnit.mm */,
+				3043286C283A18D300ECF55D /* FxScrubbingAudioUnit.h */,
+				3043286B283A18D300ECF55D /* FxScrubbingAudioUnit.mm */,
 				30432869283A180E00ECF55D /* BufferedAudioBus.hpp */,
 				3043286A283A180E00ECF55D /* DSPKernel.hpp */,
 			);
@@ -307,7 +307,7 @@
 			files = (
 				302FDF1228375E8F00606137 /* AudioPlayerViewModel.swift in Sources */,
 				30D4BF772832577900A1B71A /* ContentView.swift in Sources */,
-				3043286D283A18D400ECF55D /* templateAUfxAudioUnit.mm in Sources */,
+				3043286D283A18D400ECF55D /* FxScrubbingAudioUnit.mm in Sources */,
 				302FDF1628375F2700606137 /* PlaybackValue.swift in Sources */,
 				302FDF1428375F1B00606137 /* PlayerTime.swift in Sources */,
 				30D4BF752832577900A1B71A /* AudioExperimentsApp.swift in Sources */,

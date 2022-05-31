@@ -1,5 +1,4 @@
-//==============================================================================
-#import "templateAUfxAudioUnit.h"
+#import "FxScrubbingAudioUnit.h"
 #import <AVFoundation/AVFoundation.h>
 #import "DSPKernel.hpp"
 #import "BufferedAudioBus.hpp"
@@ -11,13 +10,13 @@ int nowFrameScrubbing = 0;
 int currentPlayingFrame = 0;
 
 //==============================================================================
-@interface templateAUfxAudioUnit ()
+@interface FxScrubbingAudioUnit ()
 @property AUAudioUnitBus *outputBus;
 @property AUAudioUnitBusArray *inputBusArray;
 @property AUAudioUnitBusArray *outputBusArray;
 @end
 //==============================================================================
-@implementation templateAUfxAudioUnit
+@implementation FxScrubbingAudioUnit
 {
     // Add your C++ Classes Here:
     BufferedInputBus _inputBus;

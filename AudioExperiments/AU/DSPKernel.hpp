@@ -1,11 +1,3 @@
-//
-//  DSPKernel.hpp
-//  AudioUnitV3Template
-//
-//  Created by mhamilt7 on 10/07/2018.
-//  Copyright © 2018 mhamilt7. All rights reserved.
-//
-//==============================================================================
 #ifndef DSPKernel_h
 #define DSPKernel_h
 //==============================================================================
@@ -84,9 +76,20 @@ public:
         }
         else {
             targetFrame = nowFrameScrubbing;
-            double diff = double(targetFrame - lastScrubbingStartFrame);
+            double diff = double(targetFrame) - double(lastScrubbingStartFrame);
             double ratio = diff / double(frameCount);
             double stride = ratio;
+            
+            if (diff == 0) {
+                //printf("diff is zero. target(%d), lastscrub(%d)\n", targetFrame, lastScrubbingStartFrame);
+                //return;
+            }
+            
+            if (stride != 1.0) {
+                printf("!!!(%f)", stride);
+            }
+            
+            
             
             int lastTest = 0;
             if (targetFrame != lastScrubbingStartFrame || !isEnoughFrameOut) {
@@ -104,6 +107,11 @@ public:
                 {
                     int frameOffset = int(frameIndex + bufferOffset);
                     int inputFrameOffset = int(double(lastScrubbingStartFrame + accumFrameOut + (frameIndex * stride)));
+                    
+                    if (diff > 0 && inputFrameOffset > targetFrame) {
+                        
+                    }
+                    
                     for (int channel = 0; channel < channelCount; ++channel)
                     {
                         if (    (diff > 0 && inputFrameOffset <= targetFrame)
@@ -122,6 +130,7 @@ public:
                             *out = 0;
                             //lastTest = maximumFrameCount;
                             //lastScrubbingStartFrame = maximumFrameCount;
+                            //printf("zero d(%.3f), off(%d) target(%d) frameIndex(%d)/%d stride(%.3f)\n", diff, inputFrameOffset, targetFrame, frameIndex, frameCount, stride);
                         }
                     }
                     //testFrameOffset++;
@@ -138,7 +147,7 @@ public:
 //                }
                 
                 if (lastTest != 0 && lastTest != targetFrame) {
-                    printf("target(%d), lastTest(%d) =>> %d \n", targetFrame, lastTest, targetFrame - lastTest);
+                    //printf("target(%d), lastTest(%d) =>> %d \n", targetFrame, lastTest, targetFrame - lastTest);
                     lastScrubbingStartFrame = lastTest;
                 }
                 else {

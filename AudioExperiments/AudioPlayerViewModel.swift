@@ -187,7 +187,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             
             //sampleRateHz = buffer.format.sampleRate
             
-            templateAUfxAudioUnit.getBufferList(from: buffer)
+            FxScrubbingAudioUnit.getBufferList(from: buffer)
         
             configureEngineConnection(with: self.buffer)
             //configureEngineWithBuffer(with: self.buffer)
@@ -270,20 +270,17 @@ class PlayerViewModel: NSObject, ObservableObject {
         let myUnitType = kAudioUnitType_Effect
         let mySubType : OSType = 1
         
-        let compDesc = AudioComponentDescription(componentType:     myUnitType,
-                                                 componentSubType:  mySubType,
-                                                 componentManufacturer: 0x666f6f20, // 4 hex byte OSType 'foo '
+        let compDesc = AudioComponentDescription(
+            componentType:     myUnitType,
+            componentSubType:  mySubType,
+            componentManufacturer: 0x666f6f20, // 4 hex byte OSType 'foo '
             componentFlags:        0,
             componentFlagsMask:    0 )
         
-//        AUAudioUnit.registerSubclass(MyV3AudioUnit5.self,
-//                                     as:        compDesc,
-//                                     name:      "MyV3AudioUnit5",   // my AUAudioUnit subclass
-//            version:   1 )
-        AUAudioUnit.registerSubclass(templateAUfxAudioUnit.self,
+        AUAudioUnit.registerSubclass(FxScrubbingAudioUnit.self,
                                      as:        compDesc,
-                                     name:      "templateAUfxAudioUnit",   // my AUAudioUnit subclass
-            version:   1 )
+                                     name:      "FxScrubbingAudioUnit",
+                                     version:   1 )
         
         let outFormat = self.engine.outputNode.outputFormat(forBus: 0)
         
