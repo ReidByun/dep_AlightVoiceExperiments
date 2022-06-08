@@ -24,6 +24,9 @@
 		30D4BF902832577C00A1B71A /* AudioExperimentsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D4BF8F2832577C00A1B71A /* AudioExperimentsUITests.swift */; };
 		30D4BF922832577C00A1B71A /* AudioExperimentsUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D4BF912832577C00A1B71A /* AudioExperimentsUITestsLaunchTests.swift */; };
 		30F6B4382845DA6F007C3440 /* IU-5s.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30F6B4372845DA6F007C3440 /* IU-5s.mp3 */; };
+		30F6B497284F32F8007C3440 /* ScrollViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F6B496284F32F8007C3440 /* ScrollViewWrapper.swift */; };
+		30F6B499284F37B8007C3440 /* TrackableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F6B498284F37B8007C3440 /* TrackableScrollView.swift */; };
+		30F6B49B284F7B74007C3440 /* ScrollableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F6B49A284F7B74007C3440 /* ScrollableView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +71,9 @@
 		30D4BF8F2832577C00A1B71A /* AudioExperimentsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioExperimentsUITests.swift; sourceTree = "<group>"; };
 		30D4BF912832577C00A1B71A /* AudioExperimentsUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioExperimentsUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		30F6B4372845DA6F007C3440 /* IU-5s.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IU-5s.mp3"; sourceTree = "<group>"; };
+		30F6B496284F32F8007C3440 /* ScrollViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewWrapper.swift; sourceTree = "<group>"; };
+		30F6B498284F37B8007C3440 /* TrackableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackableScrollView.swift; sourceTree = "<group>"; };
+		30F6B49A284F7B74007C3440 /* ScrollableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +112,16 @@
 			path = AU;
 			sourceTree = "<group>";
 		};
+		3081926D2851A35A001F775B /* ScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				30F6B496284F32F8007C3440 /* ScrollViewWrapper.swift */,
+				30F6B498284F37B8007C3440 /* TrackableScrollView.swift */,
+				30F6B49A284F7B74007C3440 /* ScrollableView.swift */,
+			);
+			path = ScrollView;
+			sourceTree = "<group>";
+		};
 		30D4BF682832577900A1B71A = {
 			isa = PBXGroup;
 			children = (
@@ -131,6 +147,7 @@
 			children = (
 				30D4BF742832577900A1B71A /* AudioExperimentsApp.swift */,
 				30432864283880E300ECF55D /* AudioExperiments-Bridging-Header.h */,
+				3081926D2851A35A001F775B /* ScrollView */,
 				30432863283880D400ECF55D /* AU */,
 				30D4BF762832577900A1B71A /* ContentView.swift */,
 				302FDF0F28375A0D00606137 /* Image+Extension.swift */,
@@ -309,11 +326,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30F6B499284F37B8007C3440 /* TrackableScrollView.swift in Sources */,
 				302FDF1228375E8F00606137 /* AudioPlayerViewModel.swift in Sources */,
 				30D4BF772832577900A1B71A /* ContentView.swift in Sources */,
 				3043286D283A18D400ECF55D /* FxScrubbingAudioUnit.mm in Sources */,
 				302FDF1628375F2700606137 /* PlaybackValue.swift in Sources */,
+				30F6B49B284F7B74007C3440 /* ScrollableView.swift in Sources */,
 				302FDF1428375F1B00606137 /* PlayerTime.swift in Sources */,
+				30F6B497284F32F8007C3440 /* ScrollViewWrapper.swift in Sources */,
 				30D4BF752832577900A1B71A /* AudioExperimentsApp.swift in Sources */,
 				302FDF1028375A0D00606137 /* Image+Extension.swift in Sources */,
 			);
@@ -475,7 +495,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AudioExperiments/Preview Content\"";
-				DEVELOPMENT_TEAM = K8P7H2F3JG;
+				DEVELOPMENT_TEAM = B8PPCZZ8Y7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -508,7 +528,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AudioExperiments/Preview Content\"";
-				DEVELOPMENT_TEAM = K8P7H2F3JG;
+				DEVELOPMENT_TEAM = B8PPCZZ8Y7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

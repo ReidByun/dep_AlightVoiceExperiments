@@ -9,7 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var viewModel = PlayerViewModel()
-    
+    @State var offset: CGPoint = CGPoint(x: 0.0, y:0.0)
+
+    @State var progress: Float = 0
     var body: some View {
         VStack {
             Image.artwork
@@ -22,6 +24,8 @@ struct ContentView: View {
             
             PlayerControlView
                 .padding(.bottom)
+            //TestHorizontalScrollView()
+            ScrollableViewTest(progress: $viewModel.playerProgress)
         }
     }
     
@@ -145,7 +149,53 @@ fileprivate struct ProgressBarView: View {
     }
 }
 
+struct ScrollableViewTest: View {
+    @State private var contentOffset: CGPoint = .zero
+    @State var screenSize: CGRect = UIScreen.main.bounds
+    @State private var orientation = UIDeviceOrientation.unknown
+    @Binding var progress: Double
 
+    var body: some View {
+        VStack {
+            Text("off: \(Int(contentOffset.x))")
+            ZStack {
+                ScrollableView(self.$contentOffset, animationDuration: 0.5, axis: .horizontal) {
+                    ZStack {
+                        Color.clear
+                            .frame(width: screenSize.width*2, height: 60)
+                        HStack(spacing: 0) {
+                            Color.black
+                                .frame(width: screenSize.width/2, height: 60)
+                            Color.green
+                                .frame(width: screenSize.width, height: 60)
+                            Color.black
+                                .frame(width: screenSize.width/2, height: 60)
+                                .id(3)  //Set the Id
+                        }
+                    }
+                }
+                
+                VStack(spacing: 0) {
+                    Color.black
+                        .frame(width: 3, height: 100)
+                }
+            }
+        }
+        .onTapGesture {
+            print("tap")
+            
+        }
+        .onRotate { newOrientation in
+            orientation = newOrientation
+            screenSize = UIScreen.main.bounds
+        }
+        .onChange(of: progress) { pr in
+            self.contentOffset = CGPoint(x: pr, y: 0)
+        }
+        .ignoresSafeArea()
+        
+    }
+}
 
 
 struct ContentView_Previews: PreviewProvider {
