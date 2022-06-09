@@ -16,11 +16,16 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
         // MARK: - Properties
         private let scrollView: UIScrollView
         var offset: Binding<CGPoint>
+        var scrollVelocity: Binding<CGFloat>
+        
+        var previousScrollMoment: Date = Date()
+        var previousScrollX: CGFloat = 0
 
         // MARK: - Init
-        init(_ scrollView: UIScrollView, offset: Binding<CGPoint>) {
+        init(_ scrollView: UIScrollView, offset: Binding<CGPoint>, scrollVelocity: Binding<CGFloat>) {
             self.scrollView          = scrollView
             self.offset              = offset
+            self.scrollVelocity      = scrollVelocity
             super.init()
             self.scrollView.delegate = self
         }
@@ -29,7 +34,29 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             DispatchQueue.main.async {
                 self.offset.wrappedValue = scrollView.contentOffset
+                //self.scrollVelo
             }
+            let d = Date()
+            let x = scrollView.contentOffset.x
+            let elapsed = Date().timeIntervalSince(self.previousScrollMoment)
+            let distance = (x - self.previousScrollX)
+            let velocity = (elapsed == 0) ? 0 : abs(distance / CGFloat(elapsed))
+            self.previousScrollMoment = d
+            self.previousScrollX = x
+            print("vel \(velocity)")
+            
+        }
+        
+        public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            print("beggin Dragging")
+        }
+        
+        public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            print("scrollView Did End Dragging")
+        }
+        
+        public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            print("scrollView Will End Dragging")
         }
     }
     
@@ -47,9 +74,10 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
     var forceRefresh: Bool
     var stopScrolling: Binding<Bool>
     private let scrollViewController: UIViewControllerType
+    var scrollVelocity: Binding<CGFloat>
 
     // MARK: - Init
-    init(_ offset: Binding<CGPoint>, animationDuration: TimeInterval, showsScrollIndicator: Bool = true, axis: Axis = .vertical, onScale: ((CGFloat)->Void)? = nil, disableScroll: Bool = false, forceRefresh: Bool = false, stopScrolling: Binding<Bool> = .constant(false),  @ViewBuilder content: @escaping () -> Content) {
+    init(_ offset: Binding<CGPoint>, animationDuration: TimeInterval, showsScrollIndicator: Bool = true, axis: Axis = .vertical, onScale: ((CGFloat)->Void)? = nil, disableScroll: Bool = false, forceRefresh: Bool = false, stopScrolling: Binding<Bool> = .constant(false), scrollVelocity: Binding<CGFloat> = .constant(100), @ViewBuilder content: @escaping () -> Content) {
         self.offset               = offset
         self.onScale              = onScale
         self.animationDuration    = animationDuration
@@ -60,6 +88,7 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
         self.forceRefresh         = forceRefresh
         self.stopScrolling        = stopScrolling
         self.scrollViewController = UIScrollViewController(rootView: self.content(), offset: self.offset, axis: self.axis, onScale: self.onScale)
+        self.scrollVelocity       = scrollVelocity
     }
     
     // MARK: - Updates
@@ -93,7 +122,7 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(self.scrollViewController.scrollView, offset: self.offset)
+        Coordinator(self.scrollViewController.scrollView, offset: self.offset, scrollVelocity: self.scrollVelocity)
     }
     
     //Calcaulte max offset

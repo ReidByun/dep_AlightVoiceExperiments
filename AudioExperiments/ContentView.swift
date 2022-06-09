@@ -24,8 +24,7 @@ struct ContentView: View {
             
             PlayerControlView
                 .padding(.bottom)
-            //TestHorizontalScrollView()
-            ScrollableViewTest(progress: $viewModel.playerProgress)
+            PlaybackScrollView(progress: $viewModel.playerProgress)
         }
     }
     
@@ -149,17 +148,18 @@ fileprivate struct ProgressBarView: View {
     }
 }
 
-struct ScrollableViewTest: View {
+struct PlaybackScrollView: View {
     @State private var contentOffset: CGPoint = .zero
-    @State var screenSize: CGRect = UIScreen.main.bounds
+    @State private var screenSize: CGRect = UIScreen.main.bounds
     @State private var orientation = UIDeviceOrientation.unknown
+    @State var scrollVelocity: CGFloat = CGFloat(0)
     @Binding var progress: Double
 
     var body: some View {
         VStack {
             Text("off: \(Int(contentOffset.x))")
             ZStack {
-                ScrollableView(self.$contentOffset, animationDuration: 0.5, axis: .horizontal) {
+                ScrollableView(self.$contentOffset, animationDuration: 0.5, axis: .horizontal, scrollVelocity: $scrollVelocity) {
                     ZStack {
                         Color.clear
                             .frame(width: screenSize.width*2, height: 60)
@@ -189,11 +189,18 @@ struct ScrollableViewTest: View {
             orientation = newOrientation
             screenSize = UIScreen.main.bounds
         }
-        .onChange(of: progress) { pr in
-            self.contentOffset = CGPoint(x: pr, y: 0)
+        .onChange(of: progress) { currentProgress in
+            self.contentOffset = CGPoint(x: progressToOffset(progress: currentProgress, width: screenSize.width), y: 0)
         }
         .ignoresSafeArea()
-        
+    }
+    
+    func progressToOffset(progress: Double, width: Double)-> Double {
+        return progress / 100.0 * width
+    }
+    
+    func offsetToProgress(offset: Double, width: Double)-> Double {
+        return offset / width * 100.0
     }
 }
 
