@@ -72,6 +72,11 @@ class PlayerViewModel: NSObject, ObservableObject {
         }
     }
     
+    //---
+    @Published var isScrubbingInScrollView = false
+    @Published var scrollVelocity: Double = 100.0
+    //----
+    
     
     private let engine: AVAudioEngine!
     private let player = AVAudioPlayerNode()

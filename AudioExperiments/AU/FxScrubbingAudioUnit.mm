@@ -8,6 +8,7 @@ bool nowScrubbing = false;
 AudioBufferList* pcmBuffer = nil;
 int nowFrameScrubbing = 0;
 int currentPlayingFrame = 0;
+double nowScrollVelocity = 0.0;
 
 //==============================================================================
 @interface FxScrubbingAudioUnit ()

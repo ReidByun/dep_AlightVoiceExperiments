@@ -154,8 +154,23 @@ struct PlaybackScrollView: View {
     @State private var orientation = UIDeviceOrientation.unknown
     @State var scrollVelocity: CGFloat = CGFloat(0)
     @Binding var progress: Double
+    
+    var test: Bool = false
 
     var body: some View {
+        let dragging = DragGesture(minimumDistance: 0, coordinateSpace: .global).onChanged { value in
+//            isDragging = true
+//            dragLocation = value.location
+//            guard let xPos = dragLocation?.x else {
+//                isDragging = false
+//                return
+//            }
+//
+//            playingBarPos = rectSize.width - calibrateXpos(xPos)
+//            timeInDragging = Double(calcTime(from: xPos))
+            print("dragging")
+        }
+        
         VStack {
             Text("off: \(Int(contentOffset.x))")
             ZStack {
@@ -181,10 +196,7 @@ struct PlaybackScrollView: View {
                 }
             }
         }
-        .onTapGesture {
-            print("tap")
-            
-        }
+        .ignoresSafeArea()
         .onRotate { newOrientation in
             orientation = newOrientation
             screenSize = UIScreen.main.bounds
@@ -192,7 +204,8 @@ struct PlaybackScrollView: View {
         .onChange(of: progress) { currentProgress in
             self.contentOffset = CGPoint(x: progressToOffset(progress: currentProgress, width: screenSize.width), y: 0)
         }
-        .ignoresSafeArea()
+        
+        
     }
     
     func progressToOffset(progress: Double, width: Double)-> Double {

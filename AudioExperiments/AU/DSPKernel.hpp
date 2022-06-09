@@ -12,6 +12,7 @@ extern bool    nowScrubbing;
 extern AudioBufferList* pcmBuffer;
 extern int nowFrameScrubbing;
 extern int currentPlayingFrame;
+extern double nowScrollVelocity;
 
 class DSPKernel
 {
@@ -73,6 +74,7 @@ public:
             targetFrame = nowFrameScrubbing;
             double diff = double(targetFrame) - double(lastScrubbingStartFrame);
             double stride = diff / double(frameCount-1);
+            printf("diff %f velocity(%f) // ", diff, nowScrollVelocity);
             
             int lastOutFrame = 0;
             if (targetFrame != lastScrubbingStartFrame) {
