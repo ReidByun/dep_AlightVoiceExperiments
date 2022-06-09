@@ -17,9 +17,11 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
         private let scrollView: UIScrollView
         var offset: Binding<CGPoint>
         var scrollVelocity: Binding<CGFloat>
+//        var scrollStarted: Binding<Bool>
+//        var scrollEnded: Binding<Bool>
         
-        var previousScrollMoment: Date = Date()
-        var previousScrollX: CGFloat = 0
+        private var previousScrollMoment: Date = Date()
+        private var previousScrollX: CGFloat = 0
 
         // MARK: - Init
         init(_ scrollView: UIScrollView, offset: Binding<CGPoint>, scrollVelocity: Binding<CGFloat>) {
@@ -43,6 +45,7 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
             let velocity = (elapsed == 0) ? 0 : abs(distance / CGFloat(elapsed))
             self.previousScrollMoment = d
             self.previousScrollX = x
+            nowScrollVelocity = velocity
             print("vel \(velocity)")
             
         }
@@ -74,7 +77,11 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
     var forceRefresh: Bool
     var stopScrolling: Binding<Bool>
     private let scrollViewController: UIViewControllerType
-    var scrollVelocity: Binding<CGFloat>
+    
+    private (set) var scrollVelocity: Binding<CGFloat>
+    
+//    private (set) var scrollStarted: Binding<Bool>
+//    private (set) var scrollEnded: Binding<Bool>
 
     // MARK: - Init
     init(_ offset: Binding<CGPoint>, animationDuration: TimeInterval, showsScrollIndicator: Bool = true, axis: Axis = .vertical, onScale: ((CGFloat)->Void)? = nil, disableScroll: Bool = false, forceRefresh: Bool = false, stopScrolling: Binding<Bool> = .constant(false), scrollVelocity: Binding<CGFloat> = .constant(100), @ViewBuilder content: @escaping () -> Content) {
@@ -244,3 +251,16 @@ final class UIScrollViewController<Content: View> : UIViewController, Observable
         ])
     }
 }
+
+
+//struct TestModifier: ViewModifier {
+//    func body(content: Content) -> some View {
+//        return ScrollableView(content: content)
+//    }
+//}
+//
+//extension View {
+//    func onRotate(perform action: @escaping (UIDeviceOrientation) -> Void) -> some View {
+//        self.modifier(DeviceRotationViewModifier(action: action))
+//    }
+//}

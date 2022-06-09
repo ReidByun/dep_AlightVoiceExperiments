@@ -10,3 +10,4 @@ extern bool nowScrubbing;
 extern int nowFrameScrubbing;
 extern int currentPlayingFrame;
 extern AudioBufferList* pcmBuffer;
+extern double nowScrollVelocity;
