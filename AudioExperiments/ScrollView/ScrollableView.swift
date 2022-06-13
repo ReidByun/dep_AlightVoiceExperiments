@@ -46,7 +46,7 @@ struct ScrollableView<Content: View>: UIViewControllerRepresentable, Equatable {
             self.previousScrollMoment = d
             self.previousScrollX = x
             nowScrollVelocity = velocity
-            print("vel \(velocity)")
+            //print("vel \(velocity)")
             
         }
         

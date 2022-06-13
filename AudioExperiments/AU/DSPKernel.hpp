@@ -21,6 +21,11 @@ public:
     
     int targetFrame = 0;
     int lastScrubbingStartFrame = 0;
+    int accumFrameCount = 0;
+    bool isEndedPreviouseOut = true;
+    
+    double diff = 0;
+    double stride = 1;
     
     //==========================================================================
     // MARK: Member Functions
@@ -71,10 +76,38 @@ public:
             lastScrubbingStartFrame = currentPlayingFrame;
         }
         else {
-            targetFrame = nowFrameScrubbing;
-            double diff = double(targetFrame) - double(lastScrubbingStartFrame);
-            double stride = diff / double(frameCount-1);
-            printf("diff %f velocity(%f) // ", diff, nowScrollVelocity);
+            if (isEndedPreviouseOut == true) {
+                targetFrame = nowFrameScrubbing;
+                diff = double(targetFrame) - double(lastScrubbingStartFrame);
+                //double stride = diff / double(frameCount-1);
+                if (nowScrollVelocity < 25) {
+                    //nowScrollVelocity = 25;
+                }
+                else if (nowScrollVelocity > 400) {
+                    nowScrollVelocity = 400;
+                }
+                stride = nowScrollVelocity / 100.0;
+                double calcTarget = lastScrubbingStartFrame + (double(frameCount - 1) * stride);
+                if (calcTarget >= targetFrame) {
+                    //stride = diff / double(frameCount-1);
+                    //printf("calcTarget(%f) >= target(%f)\n4535", calcTarget, targetFrame);
+                }
+                else {
+                    //printf("calcTarget(%f) < target(%d)\n", calcTarget, targetFrame);
+                }
+                //printf("diff %f velocity(%f) // ", diff, nowScrollVelocity);
+                
+                
+                printf("new? %s -> stride(%.3f), calcTarget(%.3f), target(%d), last(%d), diff(%.3f) \n", isEndedPreviouseOut ? "true":"false", stride, calcTarget, targetFrame, lastScrubbingStartFrame, diff);
+                
+            }
+            else {
+                double calcTarget = lastScrubbingStartFrame + (double(frameCount - 1) * stride);
+                printf("new? %s -> stride(%.3f), calcTarget(%.3f), target(%d), last(%d), diff(%.3f) \n", isEndedPreviouseOut ? "true":"false", stride, calcTarget, targetFrame, lastScrubbingStartFrame, diff);
+            }
+            
+            
+            
             
             int lastOutFrame = 0;
             if (targetFrame != lastScrubbingStartFrame) {
@@ -100,16 +133,23 @@ public:
                         else {
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
                             *out = 0;
+                            lastOutFrame = targetFrame;
                         }
                     }
                 }
                 
                 if (lastOutFrame != 0 && lastOutFrame != targetFrame) {
                     printf("target(%d), lastOutFrame(%d) =>> %d \n", targetFrame, lastOutFrame, targetFrame - lastOutFrame);
+                    accumFrameCount += abs(lastScrubbingStartFrame - lastOutFrame);
                     lastScrubbingStartFrame = lastOutFrame;
+                    isEndedPreviouseOut = false;
+                    
+                    //if (accumFrameCount > )
                 }
                 else {
                     lastScrubbingStartFrame = targetFrame;
+                    accumFrameCount = 0;
+                    isEndedPreviouseOut = true;
                 }
             }
             else {
@@ -119,8 +159,13 @@ public:
                     memset(outBufferListPtr->mBuffers[channel].mData, 0, outBufferListPtr->mBuffers[channel].mDataByteSize);
                 }
                 lastScrubbingStartFrame = targetFrame;
+                isEndedPreviouseOut = true;
             }
+            currentPlayingFrame = lastScrubbingStartFrame;
+            printf("last(%d)\n", lastScrubbingStartFrame);
         }
+        
+        
     }
     //==============================================================================
     void processWithEvents(AUAudioFrameCount frameCount,
