@@ -22,6 +22,10 @@ public:
     int targetFrame = 0;
     int lastScrubbingStartFrame = 0;
     
+    int prevNowScrubbing = 0;
+    int scrubbingStoppedFrame = 0;
+    bool isForwardScrubbing = true;
+    
     //==========================================================================
     // MARK: Member Functions
     DSPKernel() {}
@@ -71,15 +75,61 @@ public:
             lastScrubbingStartFrame = currentPlayingFrame;
         }
         else {
+            int currentNow = nowFrameScrubbing;
             targetFrame = nowFrameScrubbing;
+            
+            //printf("target(%d), lastScrub(%d), prevNow(%d), now(%d)\n", targetFrame,lastScrubbingStartFrame, prevNowScrubbing, nowFrameScrubbing);
+            
+            
+            if (prevNowScrubbing != nowFrameScrubbing) {
+                scrubbingStoppedFrame = 0;
+                if (prevNowScrubbing - nowFrameScrubbing < 0) {
+                    isForwardScrubbing = true;
+                }
+                else {
+                    isForwardScrubbing = false;
+                }
+            }
+            if (targetFrame == lastScrubbingStartFrame || prevNowScrubbing == nowFrameScrubbing) {
+//                if (targetFrame == lastScrubbingStartFrame) {
+//                    printf("--> target==lastscrubb\n");
+//                }
+//
+//                if (prevNowScrubbing == nowFrameScrubbing) {
+//                    printf("-------> prev == now\n");
+//                }
+                
+                scrubbingStoppedFrame += frameCount;
+                if (scrubbingStoppedFrame < sampleRate / 5.0) { // 200ms
+                    double velocity = (nowScrollVelocity / 100.f);
+                    if (isForwardScrubbing) {
+                        targetFrame = lastScrubbingStartFrame + int(double(frameCount) * velocity);
+                        int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
+                        if (targetFrame >= maximumFrameCount) {
+                            targetFrame = maximumFrameCount - 1;
+                        }
+                    }
+                    else {
+                        targetFrame = lastScrubbingStartFrame - int(double(frameCount) * velocity);
+                        if (targetFrame < 0) {
+                            targetFrame = 0;
+                        }
+                    }
+                    //printf("use velocity!!!!! velocity(%.3f), newTarget(%d) -> stride(%.3f)\n", velocity, targetFrame, (double(targetFrame) - double(lastScrubbingStartFrame)) / double(frameCount - 1));
+                }
+                else {
+                    printf("mute");
+                    targetFrame = lastScrubbingStartFrame;
+                }
+            }
+            prevNowScrubbing = currentNow;
             double diff = double(targetFrame) - double(lastScrubbingStartFrame);
             double stride = diff / double(frameCount-1);
-            printf("diff %f velocity(%f) // ", diff, nowScrollVelocity);
+            //printf("diff %f velocity(%f) // ", diff, nowScrollVelocity);
             
             int lastOutFrame = 0;
+            
             if (targetFrame != lastScrubbingStartFrame) {
-                int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
-                
                 for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
                 {
                     int frameOffset = int(frameIndex + bufferOffset);
@@ -105,7 +155,7 @@ public:
                 }
                 
                 if (lastOutFrame != 0 && lastOutFrame != targetFrame) {
-                    printf("target(%d), lastOutFrame(%d) =>> %d \n", targetFrame, lastOutFrame, targetFrame - lastOutFrame);
+                    //printf("target(%d), lastOutFrame(%d) =>> %d \n", targetFrame, lastOutFrame, targetFrame - lastOutFrame);
                     lastScrubbingStartFrame = lastOutFrame;
                 }
                 else {
@@ -119,6 +169,7 @@ public:
                     memset(outBufferListPtr->mBuffers[channel].mData, 0, outBufferListPtr->mBuffers[channel].mDataByteSize);
                 }
                 lastScrubbingStartFrame = targetFrame;
+                //printf("mute");
             }
         }
     }
