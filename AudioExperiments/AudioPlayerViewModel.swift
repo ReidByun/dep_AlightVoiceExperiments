@@ -92,10 +92,16 @@ class PlayerViewModel: NSObject, ObservableObject {
     private var audioFile: AVAudioFile?
     private var audioSampleRate: Double = 0
     private var audioLengthSeconds: Double = 0
+    private var audioChannelCount: AVAudioChannelCount = 0
     
     private var seekFrame: AVAudioFramePosition = 0
     private var currentPosition: AVAudioFramePosition = 0
     private var audioLengthSamples: AVAudioFramePosition = 0
+    
+    
+    private var autoScrubbingTimer: Timer? = nil
+    private var filteredOutputURL: URL!
+    private var newAudio: AVAudioFile = AVAudioFile()
     
     private var currentFrame: AVAudioFramePosition {
         guard
@@ -132,6 +138,8 @@ class PlayerViewModel: NSObject, ObservableObject {
         //setupAudio()
         setupAudioWithBuffer()
         setupDisplayLink()
+        
+        //startAutoScrubbing()
     }
     
     func playOrPause() {
@@ -174,8 +182,9 @@ class PlayerViewModel: NSObject, ObservableObject {
 //        guard let fileURL = Bundle.main.url(forResource: "voice-sample", withExtension: "m4a") else {
 //        guard let fileURL = Bundle.main.url(forResource: "drums", withExtension: "mp3") else {
 //        guard let fileURL = Bundle.main.url(forResource: "IU", withExtension: "mp3") else {
-        guard let fileURL = Bundle.main.url(forResource: "IU-12s", withExtension: "mp3") else {
-//        guard let fileURL = Bundle.main.url(forResource: "IU-5s", withExtension: "mp3") else {
+//        guard let fileURL = Bundle.main.url(forResource: "IU-12s", withExtension: "mp3") else {
+        guard let fileURL = Bundle.main.url(forResource: "IU-5s", withExtension: "mp3") else {
+//        guard let fileURL = Bundle.main.url(forResource: "roses", withExtension: "mp3") else {
             return
         }
         
@@ -187,6 +196,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             
             audioLengthSamples = file.length
             audioSampleRate = format.sampleRate
+            audioChannelCount = format.channelCount
             audioLengthSeconds = Double(audioLengthSamples) / audioSampleRate
             
             audioFile = file
@@ -222,9 +232,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             to: engine.mainMixerNode,
             format: buffer.format)
         
-        
-        
-        
+        //writeAudioToFile()
         
 //        let inputNode = engine.inputNode
 //        let bus = 0
@@ -244,6 +252,77 @@ class PlayerViewModel: NSObject, ObservableObject {
         } catch {
             print("Error starting the player: \(error.localizedDescription)")
         }
+    }
+    
+    func startAutoScrubbing() {
+        if autoScrubbingTimer == nil { // timer is not working
+            engine.pause()
+            writeAudioToFile()
+            try? engine.start()
+            
+            self.isScrubbing = true
+            autoScrubbingTimer = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true, block: { timer in
+                //DispatchQueue.main.async {
+                self.playerProgress = self.playerProgress + 0.09
+                if self.playerProgress > 100.0 {
+                    timer.invalidate()
+                    self.engine.pause()
+                    self.isScrubbing = false
+                    self.playerProgress = 0
+                    self.engine.mainMixerNode.removeTap(onBus: 0)
+                    try? self.engine.start()
+                    self.autoScrubbingTimer = nil
+                }
+            })
+        }
+        else {
+            autoScrubbingTimer?.invalidate()
+            autoScrubbingTimer = nil
+            self.engine.pause()
+            self.isScrubbing = false
+            self.playerProgress = 0
+            self.engine.mainMixerNode.removeTap(onBus: 0)
+            try? self.engine.start()
+        }
+    }
+    
+    // Function to Write Audio to a File
+    func writeAudioToFile() {
+        // File to write
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let audioURL = documentsDirectory.appendingPathComponent("share.m4a")
+        
+        // Format parameters
+        let sampleRate = Int(audioSampleRate)
+        let channels = Int(audioChannelCount)
+        
+        // Audio File settings
+        let settings = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: Int(audioSampleRate),
+            AVNumberOfChannelsKey: Int(audioChannelCount),
+            AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue
+        ]
+        
+        // Audio File
+        var audioFile = AVAudioFile()
+        do {
+            audioFile = try AVAudioFile(forWriting: audioURL, settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
+        }
+        catch {
+            print ("Failed to open Audio File For Writing: \(error.localizedDescription)")
+        }
+        
+        // Install Tap on mainMixer
+        // Write into buffer and then write buffer into AAC file
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 8192, format: nil, block: { (pcmBuffer, when) in
+            do {
+                try audioFile.write(from: pcmBuffer)
+            }
+            catch {
+                print("Failed to write Audio File: \(error.localizedDescription)")
+            }
+        })
     }
     
     private func scheduleAudioBuffer() {

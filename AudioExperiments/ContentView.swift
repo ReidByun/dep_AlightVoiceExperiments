@@ -24,6 +24,9 @@ struct ContentView: View {
             
             PlayerControlView
                 .padding(.bottom)
+            Button("Auto scrubbing") {
+                viewModel.startAutoScrubbing()
+            }
             PlaybackScrollView(progress: $viewModel.playerProgress)
         }
     }

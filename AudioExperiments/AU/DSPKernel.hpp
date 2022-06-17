@@ -50,6 +50,7 @@ public:
      processWithEvents in the DSPKernel in which the call to
      this function is made
      */
+    
     void process(AUAudioFrameCount frameCount, AUAudioFrameCount bufferOffset)
     {
         if (myScrubbing != nowScrubbing) {
@@ -62,23 +63,29 @@ public:
             for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
             {
                 int frameOffset = int(frameIndex + bufferOffset);
+                //int inframeOffset = int(frameIndex/2 + acc);
                 for (int channel = 0; channel < channelCount; ++channel)
                 {
                     float* in  = (float*)inBufferListPtr->mBuffers[channel].mData  + frameOffset;
+                    //float* indata = (float *)(pcmBuffer->mBuffers[channel].mData);
+                    //float* in  = indata  + inframeOffset;
+                    
                     float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
                     // MARK: Sample Processing
                     *out = *in;
                     //*out = 0;
                 }
             }
+            //acc += frameCount/2;
             
             lastScrubbingStartFrame = currentPlayingFrame;
         }
         else {
             int currentNow = nowFrameScrubbing;
             targetFrame = nowFrameScrubbing;
+            //targetFrame = lastScrubbingStartFrame + frameCount/2;
             
-            //printf("target(%d), lastScrub(%d), prevNow(%d), now(%d)\n", targetFrame,lastScrubbingStartFrame, prevNowScrubbing, nowFrameScrubbing);
+            printf("--- target(%d), lastScrub(%d), prevNow(%d), now(%d)\n", targetFrame,lastScrubbingStartFrame, prevNowScrubbing, nowFrameScrubbing);
             
             
             if (prevNowScrubbing != nowFrameScrubbing) {
@@ -90,6 +97,8 @@ public:
                     isForwardScrubbing = false;
                 }
             }
+            
+            int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
             if (targetFrame == lastScrubbingStartFrame || prevNowScrubbing == nowFrameScrubbing) {
 //                if (targetFrame == lastScrubbingStartFrame) {
 //                    printf("--> target==lastscrubb\n");
@@ -98,13 +107,17 @@ public:
 //                if (prevNowScrubbing == nowFrameScrubbing) {
 //                    printf("-------> prev == now\n");
 //                }
-                
+
                 scrubbingStoppedFrame += frameCount;
                 if (scrubbingStoppedFrame < sampleRate / 5.0) { // 200ms
+                    printf("using velocity->  ");
                     double velocity = (nowScrollVelocity / 100.f);
+//                    if (velocity < 0.1) {
+//                        velocity = 0.10;
+//                    }
                     if (isForwardScrubbing) {
                         targetFrame = lastScrubbingStartFrame + int(double(frameCount) * velocity);
-                        int maximumFrameCount = pcmBuffer->mBuffers[0].mDataByteSize / 4;
+
                         if (targetFrame >= maximumFrameCount) {
                             targetFrame = maximumFrameCount - 1;
                         }
@@ -125,7 +138,7 @@ public:
             prevNowScrubbing = currentNow;
             double diff = double(targetFrame) - double(lastScrubbingStartFrame);
             double stride = diff / double(frameCount-1);
-            //printf("diff %f velocity(%f) // ", diff, nowScrollVelocity);
+            printf("diff %f velocity(%.3f) // ", diff, nowScrollVelocity / 100.f);
             
             int lastOutFrame = 0;
             
@@ -133,9 +146,32 @@ public:
                 for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex) // For each sample.
                 {
                     int frameOffset = int(frameIndex + bufferOffset);
-                    int inputFrameOffset = int(double(lastScrubbingStartFrame + (frameIndex * stride)));
-//                    int inputFrameOffset = int(lastScrubbingStartFrame + double(frameIndex * diff) / double(frameCount-1));
+                    //int inputFrameOffset = int(double(lastScrubbingStartFrame + (frameIndex * stride)));
+                    //int inputFrameOffset = floor(double(lastScrubbingStartFrame + (frameIndex * stride)));
+                    //int inputFrameNextOffset = ceil(double(lastScrubbingStartFrame + (frameIndex * stride)));
                     
+                    int inputFrameOffset = int(lastScrubbingStartFrame + double(frameIndex * diff) / double(frameCount-1));
+                    //int inputFrameOffset = floor(lastScrubbingStartFrame + double(frameIndex * diff) / double(frameCount-1));
+                    int inputFrameNextOffset = ceil(lastScrubbingStartFrame + double(frameIndex * diff) / double(frameCount-1));
+                    if (inputFrameOffset >= maximumFrameCount) {
+                        inputFrameOffset = maximumFrameCount;
+                    }
+                    if (inputFrameNextOffset >= maximumFrameCount) {
+                        inputFrameNextOffset = inputFrameOffset;
+                    }
+                    
+                    
+//                    if (diff < 500) {
+//                        for (int channel = 0; channel < channelCount; ++channel)
+//                        {
+//
+//                            float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
+//                            lastOutFrame = inputFrameOffset;
+//                            *out = 0;
+//                        }
+//                    }
+//                    else {
+//
                     for (int channel = 0; channel < channelCount; ++channel)
                     {
                         if (    (diff > 0 && inputFrameOffset <= targetFrame)
@@ -144,21 +180,27 @@ public:
                             float* in  = &indata[inputFrameOffset];
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
                             // MARK: Sample Processing
+                            float* inNext = &indata[inputFrameNextOffset];
+                            float outSample = interpolation(*in, *inNext);
+                            
                             *out = *in;
                             lastOutFrame = inputFrameOffset;
                         }
                         else {
                             float* out = (float*)outBufferListPtr->mBuffers[channel].mData + frameOffset;
+                            printf("mute");
                             *out = 0;
                         }
                     }
+                    //}
                 }
                 
                 if (lastOutFrame != 0 && lastOutFrame != targetFrame) {
-                    //printf("target(%d), lastOutFrame(%d) =>> %d \n", targetFrame, lastOutFrame, targetFrame - lastOutFrame);
+                    printf("not same!! target(%d), lastOutFrame(%d) =>> %d \n", targetFrame, lastOutFrame, targetFrame - lastOutFrame);
                     lastScrubbingStartFrame = lastOutFrame;
                 }
                 else {
+                    printf("last is same\n");
                     lastScrubbingStartFrame = targetFrame;
                 }
             }
@@ -173,6 +215,19 @@ public:
             }
         }
     }
+    
+    float interpolation(float sampleA, float sampleB) {
+        float p = sampleA - floor(sampleA);
+        float q = 1.0f - p;
+        //printf("%f\n", p);
+        
+//        float result = sampleA * q + sampleB * p;
+//        printf("%f -> %f (%s)\n", sampleA, result, sampleA != result ? "true" : "false");
+        
+        return sampleA * q + sampleB * p;
+    }
+    
+    
     //==============================================================================
     void processWithEvents(AUAudioFrameCount frameCount,
                            AudioBufferList* inBufferList,
