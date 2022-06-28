@@ -183,8 +183,10 @@ class PlayerViewModel: NSObject, ObservableObject {
 //        guard let fileURL = Bundle.main.url(forResource: "drums", withExtension: "mp3") else {
 //        guard let fileURL = Bundle.main.url(forResource: "IU", withExtension: "mp3") else {
 //        guard let fileURL = Bundle.main.url(forResource: "IU-12s", withExtension: "mp3") else {
-        guard let fileURL = Bundle.main.url(forResource: "IU-5s", withExtension: "mp3") else {
+//        guard let fileURL = Bundle.main.url(forResource: "IU-5s", withExtension: "mp3") else {
 //        guard let fileURL = Bundle.main.url(forResource: "roses", withExtension: "mp3") else {
+//        guard let fileURL = Bundle.main.url(forResource: "sine-3s", withExtension: "wav") else {
+        guard let fileURL = Bundle.main.url(forResource: "sine-st-5s", withExtension: "mp3") else {
             return
         }
         
@@ -203,6 +205,7 @@ class PlayerViewModel: NSObject, ObservableObject {
             
             //sampleRateHz = buffer.format.sampleRate
             
+            //FxScrubbingAudioUnit.getBufferList(fromBufferMono: buffer)
             FxScrubbingAudioUnit.getBufferList(from: buffer)
         
             configureEngineConnection(with: self.buffer)
@@ -290,7 +293,9 @@ class PlayerViewModel: NSObject, ObservableObject {
     func writeAudioToFile() {
         // File to write
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let audioURL = documentsDirectory.appendingPathComponent("share.m4a")
+        //let audioURL = documentsDirectory.appendingPathComponent("share.m4a")
+//        let audioURL = documentsDirectory.appendingPathComponent("sine.m4a")
+        let audioURL = documentsDirectory.appendingPathComponent("sine.raw")
         
         // Format parameters
         let sampleRate = Int(audioSampleRate)
@@ -298,7 +303,8 @@ class PlayerViewModel: NSObject, ObservableObject {
         
         // Audio File settings
         let settings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+            //AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: Int(audioSampleRate),
             AVNumberOfChannelsKey: Int(audioChannelCount),
             AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue

@@ -197,6 +197,42 @@ double nowScrollVelocity = 0.0;
     }
     return nil;
 }
+
++ (AudioBufferList *)getBufferListFromBufferMono:(AVAudioPCMBuffer *)buffer {
+    NSData* dataL = [[NSData alloc] initWithBytes:buffer.floatChannelData[0] length:buffer.frameLength * 4];
+    //NSData* dataR = [[NSData alloc] initWithBytes:buffer.floatChannelData[1] length:buffer.frameLength * 4];
+    if (dataL.length > 0)
+    {
+        NSUInteger lenL = [dataL length];
+        //NSUInteger lenR = [dataR length];
+        //Byte* byteDataL = (Byte*) malloc (lenL);
+        //memcpy (byteDataL, [dataL bytes], lenL);
+        if (lenL)
+        {
+            if (pcmBuffer != nil) {
+                delete[] (Byte*)pcmBuffer->mBuffers[0].mData;
+                //delete[] (Byte*)pcmBuffer->mBuffers[1].mData;
+                delete[] pcmBuffer;
+            }
+            
+            pcmBuffer =(AudioBufferList*)malloc(sizeof(AudioBufferList) * 1);
+            pcmBuffer->mNumberBuffers = 1;
+            pcmBuffer->mBuffers[0].mDataByteSize =(UInt32) lenL;
+            pcmBuffer->mBuffers[0].mNumberChannels = 1;
+            
+            float * dataLfloat =(float*) dataL.bytes;
+            pcmBuffer->mBuffers[0].mData = (Byte*) malloc (lenL);
+            float* left = (float *)(pcmBuffer->mBuffers[0].mData);
+            for (int i = 0; i < buffer.frameLength; i++) {
+                //left[i] = buffer.floatChannelData[0][i];
+                left[i] = dataLfloat[i];
+            }
+            
+            return pcmBuffer;
+        }
+    }
+    return nil;
+}
 //==============================================================================
 @end
 

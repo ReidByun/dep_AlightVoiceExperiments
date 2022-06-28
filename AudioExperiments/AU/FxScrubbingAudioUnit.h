@@ -3,6 +3,7 @@
 //==============================================================================
 @interface FxScrubbingAudioUnit : AUAudioUnit
 + (AudioBufferList *)getBufferListFromBuffer:(AVAudioPCMBuffer *)buffer;
++ (AudioBufferList *)getBufferListFromBufferMono:(AVAudioPCMBuffer *)buffer;
 @end
 //==============================================================================
 

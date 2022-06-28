@@ -18,6 +18,10 @@
 		30432876283A9C5B00ECF55D /* IU.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30432875283A9C5B00ECF55D /* IU.mp3 */; };
 		304E85E8283F3241001EC7AB /* IU-12s.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 304E85E7283F3241001EC7AB /* IU-12s.mp3 */; };
 		305CBCE4285C9EBF009FB710 /* roses.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 305CBCE3285C9EBF009FB710 /* roses.mp3 */; };
+		30C43ADB286AE11600F1E88B /* sine-raw.wav in Resources */ = {isa = PBXBuildFile; fileRef = 30C43ADA286AE11600F1E88B /* sine-raw.wav */; };
+		30C43ADD286AE75D00F1E88B /* sine-3s.wav in Resources */ = {isa = PBXBuildFile; fileRef = 30C43ADC286AE75D00F1E88B /* sine-3s.wav */; };
+		30C43ADF286AEC5300F1E88B /* sine-3s-mp3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30C43ADE286AEC5300F1E88B /* sine-3s-mp3.mp3 */; };
+		30C43AE1286AED7D00F1E88B /* sine-st-5s.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 30C43AE0286AED7D00F1E88B /* sine-st-5s.mp3 */; };
 		30D4BF752832577900A1B71A /* AudioExperimentsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D4BF742832577900A1B71A /* AudioExperimentsApp.swift */; };
 		30D4BF772832577900A1B71A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D4BF762832577900A1B71A /* ContentView.swift */; };
 		30D4BF7C2832577C00A1B71A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30D4BF7B2832577C00A1B71A /* Preview Assets.xcassets */; };
@@ -64,6 +68,10 @@
 		304E85E7283F3241001EC7AB /* IU-12s.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IU-12s.mp3"; sourceTree = "<group>"; };
 		305CBCE2285C854A009FB710 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		305CBCE3285C9EBF009FB710 /* roses.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = roses.mp3; sourceTree = "<group>"; };
+		30C43ADA286AE11600F1E88B /* sine-raw.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "sine-raw.wav"; sourceTree = "<group>"; };
+		30C43ADC286AE75D00F1E88B /* sine-3s.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "sine-3s.wav"; sourceTree = "<group>"; };
+		30C43ADE286AEC5300F1E88B /* sine-3s-mp3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "sine-3s-mp3.mp3"; sourceTree = "<group>"; };
+		30C43AE0286AED7D00F1E88B /* sine-st-5s.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "sine-st-5s.mp3"; sourceTree = "<group>"; };
 		30D4BF712832577900A1B71A /* AudioExperiments.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudioExperiments.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D4BF742832577900A1B71A /* AudioExperimentsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioExperimentsApp.swift; sourceTree = "<group>"; };
 		30D4BF762832577900A1B71A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -161,9 +169,13 @@
 				3043285F28376D3D00ECF55D /* Assets.xcassets */,
 				305CBCE3285C9EBF009FB710 /* roses.mp3 */,
 				30432873283A401B00ECF55D /* drums.mp3 */,
+				30C43ADA286AE11600F1E88B /* sine-raw.wav */,
 				30432875283A9C5B00ECF55D /* IU.mp3 */,
 				30F6B4372845DA6F007C3440 /* IU-5s.mp3 */,
+				30C43ADE286AEC5300F1E88B /* sine-3s-mp3.mp3 */,
+				30C43AE0286AED7D00F1E88B /* sine-st-5s.mp3 */,
 				304E85E7283F3241001EC7AB /* IU-12s.mp3 */,
+				30C43ADC286AE75D00F1E88B /* sine-3s.wav */,
 				3043286128376DCC00ECF55D /* voice-sample.m4a */,
 				30D4BF7A2832577C00A1B71A /* Preview Content */,
 			);
@@ -301,13 +313,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				30432876283A9C5B00ECF55D /* IU.mp3 in Resources */,
+				30C43ADD286AE75D00F1E88B /* sine-3s.wav in Resources */,
 				3043286028376D3D00ECF55D /* Assets.xcassets in Resources */,
 				30F6B4382845DA6F007C3440 /* IU-5s.mp3 in Resources */,
+				30C43ADB286AE11600F1E88B /* sine-raw.wav in Resources */,
 				305CBCE4285C9EBF009FB710 /* roses.mp3 in Resources */,
 				3043286228376E2000ECF55D /* voice-sample.m4a in Resources */,
 				30432874283A401B00ECF55D /* drums.mp3 in Resources */,
+				30C43AE1286AED7D00F1E88B /* sine-st-5s.mp3 in Resources */,
 				30D4BF7C2832577C00A1B71A /* Preview Assets.xcassets in Resources */,
 				304E85E8283F3241001EC7AB /* IU-12s.mp3 in Resources */,
+				30C43ADF286AEC5300F1E88B /* sine-3s-mp3.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
